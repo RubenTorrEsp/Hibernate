@@ -1,66 +1,91 @@
 package Main;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 public class InsertaAlumno {
+	
+	private static final String fichero = "Alumnado_nuevo.txt";
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) throws IOException {
+		crearTablaSuperusuarios(fichero);
+	}
+
+	
+	/**
+	 * Método que recibe como parámetro el nombre de un archivo. 
+	 * Creará una tabla llamada “Superusuarios” en la base de datos
+	 * y añadirá el contenido de ese fichero a la tabla.
+	 * 
+	 * @param ruta
+	 * @throws IOException
+	 */
+	private static void crearTablaSuperusuarios(String ruta) throws IOException {
 		
-		//Lectura del archivo de configuraci�n
-		SessionFactory miSF = new Configuration()
-				.configure("hibernate.cfg.xml")
-				.addAnnotatedClass(Alumno.class)
-				.addAnnotatedClass(Matricula.class)
-				.buildSessionFactory();
+		//Iniciamos los objetos que necesitaremos para la lectura del archivo
+		BufferedReader lector = null;
+		String linea = null;
+		ArrayList<SuperUsuario> listaSuperUsuarios = new ArrayList<SuperUsuario>();
 		
-		//Inicio de la sesi�n (conexion)
-		Session miSession = miSF.openSession();
-			
-		//Inserci�n de datos
+		//Leemos el archivo e insertamos cada línea en la lista
+		lector = new BufferedReader(new FileReader(ruta));
+		
+		//Añadimos los usuarios a la lista
 		try {
-		
-			Alumno alumno1 = new Alumno("Jesus", "Gil y Gil", "696969696");
-			Matricula matricula1 = new Matricula("000000001A", "2 DAM", "Trial");
 			
-			Alumno alumno2 = new Alumno("Paco", "Umbral", "666000666");
-			Matricula matricula2 = new Matricula("000LIBRO00", "Todos los cursos", "Biblioteca");
-			
-			Alumno alumno3 = new Alumno("Jose", "Toxeiro", "621321321");
-			Matricula matricula3 = new Matricula("COLACAO003", "Cocina", "Batidos chocolateados");
-			
-			//Asociaci�n de los objetos
-			alumno1.setMatricula(matricula1);
-			alumno2.setMatricula(matricula2);
-			alumno3.setMatricula(matricula3);
-			
-			//Inicio de la sesi�n
-			miSession.beginTransaction();
-			
-			//Guardado de los alumnos
-			miSession.save(alumno1);
-			miSession.save(alumno2);
-			miSession.save(alumno3);
-			
-			//Finalizaci�n del guardado
-			miSession.getTransaction().commit();
-			
-			//Control de errores
-			System.out.println("Alumnos insertados correctamente en la BBDD.");
-			
+			//Leemos las líneas del archivo hasta que lleguemos al final
+			while ((linea = lector.readLine()) != null) {
+			String[] campos = linea.split(",");
+			String apellidos = campos[0];
+			String nombre = campos[1];
+			String user = "2DAM" + nombre.charAt(1) + apellidos.charAt(0);
+
+			//Añadimos superUsuarios a la lista
+			listaSuperUsuarios.add(new SuperUsuario(nombre, apellidos, user));
+			}
 		} catch (Exception e) {
-			
 			e.printStackTrace();
-			
-		} finally {
-			
-			miSession.close();
-			miSF.close();
-			
 		}
 		
+		//Cerramos el lector
+		lector.close();
+		
+		//Inicializador de los objetos de hibernate
+		SessionFactory miSF = new Configuration()
+				.configure("hibernate.cfg.xml")
+				.addAnnotatedClass(SuperUsuario.class)
+				.buildSessionFactory();
+		
+		//Inicio de la sesión (conexion)
+		Session miSession = miSF.openSession();
+
+		try {
+			
+			//Iniciamos el proceso hibernate
+			miSession.beginTransaction();
+			
+			//Guardamos todos los objetos de tipo SuperUsuario en la BD
+			for (SuperUsuario superUsuario : listaSuperUsuarios) {
+				miSession.save(superUsuario);
+			}
+
+			//Realizamos el commit
+			miSession.getTransaction().commit();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			//Cerramos los objetos de hibernate
+			miSession.close();
+			miSF.close();
+		}		
+	
 	}
 
 }
