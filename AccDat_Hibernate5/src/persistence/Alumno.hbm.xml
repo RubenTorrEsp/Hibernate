@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+	<hibernate-mapping>
+		
+		<class name="main.Alumno" table="alumno" >
+			<!-- Clave primaria -->
+			<id column="Id" name="id" type="integer"/>
+   			<!-- Parámetros de clase -->
+   			<property name="nombre" />
+			<property name="apellidos" />
+			<property name="telefono" />
+			<!-- Relaciones -->
+			<one-to-one name="Matricula" cascade="all"></one-to-one>
+		</class>
+		
+		<query name="mostrarAlumnos"><![CDATA[
+			SELECT a FROM Alumno a 
+		]]></query>
+     	
+	</hibernate-mapping>

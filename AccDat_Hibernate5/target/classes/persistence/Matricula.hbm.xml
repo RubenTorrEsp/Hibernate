@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+	<hibernate-mapping>
+	
+		<class name="main.Matricula" table="matricula" >
+			<!-- Columna clave primaria -->		
+			<id column="Id" name="id" type="integer"/>
+   			<!-- Parámetros clase -->
+   			<property name="numMatricula" column="num_matricula"/>
+			<property name="curso" />
+			<property name="grupo" />
+			<!-- Relaciones -->
+			<one-to-one name="Alumno" cascade="all"></one-to-one>
+		</class>
+		
+	</hibernate-mapping>
